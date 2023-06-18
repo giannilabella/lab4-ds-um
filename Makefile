@@ -1,7 +1,7 @@
-PROJECT_NAME = template
+PROJECT_NAME = led_trigger
 PROCESSOR    = p16f877a # Required by disassembler
 
-SOURCE_FILE = template-p16f877a.asm
+SOURCE_FILE = led_trigger.asm
 SOURCE_DIR = src/
 OUTPUT_DIR = out/
 
