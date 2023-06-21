@@ -1,7 +1,7 @@
-PROJECT_NAME = led_trigger
+PROJECT_NAME = sampling
 PROCESSOR    = p16f877a # Required by disassembler
 
-SOURCE_FILE = led_trigger.asm
+SOURCE_FILE = sampling.asm
 SOURCE_DIR = src/
 OUTPUT_DIR = out/
 
