@@ -1,4 +1,4 @@
-gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/21/23  21:44:58          PAGE  1
+gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/22/23  18:54:32          PAGE  1
 
 
 LOC    OBJECT CODE    LINE  SOURCE TEXT
@@ -37,188 +37,226 @@ LOC    OBJECT CODE    LINE  SOURCE TEXT
   0000007F            00021 pclath_temp     EQU     0x7F
                       00022 
                       00023 ; Refresh Display Subroutine Variables
-                      00024 
-                      00025 
-  0000003D            00026 timer_preload       EQU d'61'   ; Preload for 10ms interrupt period on 1:128 prescaler
-                      00027 
-                      00028 
-                      00029 ; *** Reset Config ***
-0000                  00030         ORG     0x000   ; processor reset vector
-                      00031 
-0000   0000           00032         nop             ; nop required for icd
-0001   2849           00033         goto    main    ; go to beginning of program
-                      00034 
-                      00035 
-                      00036 ; *** Interrupt Config ***
-0004                  00037         ORG     0x004   ; interrupt vector location
-                      00038 
-                      00039     ; Disable global interrupt
-0004   138B           00040     bcf     INTCON, GIE
-                      00041 
-                      00042     ; Save context
-0005   00FD           00043     movwf   w_temp          ; copy W value to a temporary register
-gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/21/23  21:44:58          PAGE  2
+  0000003F            00024 char_0          EQU b'0111111'
+  00000006            00025 char_1          EQU b'0000110'
+  0000005B            00026 char_2          EQU b'1011011'
+  0000004F            00027 char_3          EQU b'1001111'
+  00000066            00028 char_4          EQU b'1100110'
+  0000006D            00029 char_5          EQU b'1101101'
+  0000007D            00030 char_6          EQU b'1111101'
+  00000007            00031 char_7          EQU b'0000111'
+  0000007F            00032 char_8          EQU b'1111111'
+  0000006F            00033 char_9          EQU b'1101111'
+  00000077            00034 char_A          EQU b'1110111'
+  0000007C            00035 char_b          EQU b'1111100'
+  00000058            00036 char_c          EQU b'1011000'
+  0000005E            00037 char_d          EQU b'1011110'
+  00000079            00038 char_E          EQU b'1111001'
+  00000071            00039 char_F          EQU b'1110001'
+  0000003D            00040 char_G          EQU b'0111101'
+  00000076            00041 char_H          EQU b'1110110'
+  00000030            00042 char_I          EQU b'0110000'
+  0000000E            00043 char_J          EQU b'0001110'
+gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/22/23  18:54:32          PAGE  2
 
 
 LOC    OBJECT CODE    LINE  SOURCE TEXT
   VALUE
 
-0006   0E03           00044     swapf   STATUS, W       ; swap STATUS nibbles and save value to a temporary register
-0007   00FE           00045     movwf   status_temp
-0008   0E0A           00046     swapf   PCLATH, W       ; swap PCLATH nibbles and save value to a temporary register
-0009   00FF           00047     movwf   pclath_temp
-                      00048 
-                      00049     ; Interrupt Service Routine (ISR) code can go here or be located as a call subroutine elsewhere
-000A   190B           00050     btfsc   INTCON, TMR0IF      ; Skip when timer0 flag is clear
-000B   2028           00051     call    refresh_display     ; Convert analog input if flag is set
-                      00052 
-                      00053     ; Restore context
-000C   0E7F           00054     swapf   pclath_temp, W  ; swap original PCLATH value and restore from temporary register
-000D   008A           00055     movwf   PCLATH
-000E   0E7E           00056     swapf   status_temp, W  ; swap original STATUS value and restore from temporary register
-000F   0083           00057     movwf   STATUS
-0010   0EFD           00058     swapf   w_temp, F       ; restore original W value from temporary register
-0011   0E7D           00059     swapf   w_temp, W
-                      00060 
-                      00061     ; Enable global interrupt
-0012   178B           00062     bsf     INTCON, GIE
-                      00063 
-                      00064     ; Return from interrupt
-0013   0009           00065         retfie
+  00000038            00044 char_L          EQU b'0111000'
+  00000054            00045 char_n          EQU b'1010100'
+  00000055            00046 char_enie   EQU b'1010101'
+  0000005C            00047 char_o      EQU b'1011100'
+  00000073            00048 char_P      EQU b'1110011'
+  00000050            00049 char_r      EQU b'1010000'
+  0000006D            00050 char_S      EQU b'1101101'
+  00000078            00051 char_t      EQU b'1111000'
+  0000001C            00052 char_u      EQU b'0011100'
+  0000006E            00053 char_y      EQU b'1101110'
+  00000000            00054 char_off    EQU b'0000000'
+                      00055 
+  0000003C            00056 timer_preload   EQU d'60'   ; Preload for 10ms interrupt period on 1:128 prescaler
+                      00057 
+                      00058 
+                      00059 ; *** Reset Config ***
+                      00060     ; Processor reset vector
+0000                  00061         ORG     0x000
+                      00062 
+0000   0000           00063         nop             ; nop required for icd
+0001   2849           00064         goto    main    ; go to beginning of program
+                      00065 
                       00066 
-                      00067 
-                      00068 ; *** Refresh Display Config Subroutine ***
-0014                  00069 refresh_display_config
-                      00070     ; Change to Bank 1
-0014   1303           00071     bcf     STATUS, RP1
-0015   1683           00072     bsf     STATUS, RP0
+                      00067 ; *** Interrupt Config ***
+                      00068     ; Interrupt vector location
+0004                  00069         ORG     0x004
+                      00070 
+                      00071     ; Disable global interrupt
+0004   138B           00072     bcf     INTCON, GIE
                       00073 
-                      00074     ; Config Port A as Digital Outputs
-0016   3006           00075     movlw   b'0110' ; Set as digital 
-Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'ADCON1' -- (Bank_1: 0x0080; Offs: 0x001F)
-0017   009F           00076     movwf   ADCON1
-0018   3000           00077     movlw   0       ; Set as output
-Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'TRISA' -- (Bank_1: 0x0080; Offs: 0x0005)
-0019   0085           00078     movwf   TRISA
-                      00079 
-                      00080     ; Config Port B as Output
-001A   3000           00081     movlw   0
-Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'TRISB' -- (Bank_1: 0x0080; Offs: 0x0006)
-001B   0086           00082     movwf   TRISB
-                      00083 
-                      00084     ; Config Timer0
-Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'OPTION_REG' -- (Bank_1: 0x0080; Offs: 0x0001)
-001C   1281           00085     bcf     OPTION_REG, T0CS
-Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'OPTION_REG' -- (Bank_1: 0x0080; Offs: 0x0001)
-001D   1181           00086     bcf     OPTION_REG, PSA     ; Config prescaler (1:128)
-Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'OPTION_REG' -- (Bank_1: 0x0080; Offs: 0x0001)
-001E   1501           00087     bsf     OPTION_REG, PS2
-Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'OPTION_REG' -- (Bank_1: 0x0080; Offs: 0x0001)
-001F   1481           00088     bsf     OPTION_REG, PS1
-Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'OPTION_REG' -- (Bank_1: 0x0080; Offs: 0x0001)
-gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/21/23  21:44:58          PAGE  3
+                      00074     ; Save context
+0005   00FD           00075     movwf   w_temp          ; copy W value to a temporary register
+0006   0E03           00076     swapf   STATUS, W       ; swap STATUS nibbles and save value to a temporary register
+0007   00FE           00077     movwf   status_temp
+0008   0E0A           00078     swapf   PCLATH, W       ; swap PCLATH nibbles and save value to a temporary register
+0009   00FF           00079     movwf   pclath_temp
+                      00080 
+                      00081     ; Interrupt Service Routine (ISR) code can go here or be located as a call subroutine elsewhere
+000A   190B           00082     btfsc   INTCON, TMR0IF      ; Skip when timer0 flag is clear
+000B   2028           00083     call    refresh_display     ; Convert analog input if flag is set
+                      00084 
+                      00085     ; Restore context
+000C   0E7F           00086     swapf   pclath_temp, W  ; swap original PCLATH value and restore from temporary register
+000D   008A           00087     movwf   PCLATH
+000E   0E7E           00088     swapf   status_temp, W  ; swap original STATUS value and restore from temporary register
+000F   0083           00089     movwf   STATUS
+0010   0EFD           00090     swapf   w_temp, F       ; restore original W value from temporary register
+0011   0E7D           00091     swapf   w_temp, W
+                      00092 
+                      00093     ; Enable global interrupt
+0012   178B           00094     bsf     INTCON, GIE
+                      00095 
+                      00096     ; Return from interrupt
+gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/22/23  18:54:32          PAGE  3
 
 
 LOC    OBJECT CODE    LINE  SOURCE TEXT
   VALUE
 
-0020   1001           00089     bcf     OPTION_REG, PS0
-                      00090 
-                      00091     ; Change to Bank 0
-0021   1303           00092     bcf     STATUS, RP1
-0022   1283           00093     bcf     STATUS, RP0
-                      00094 
-                      00095     ; Enable timer0 interrupt
-0023   168B           00096     bsf     INTCON, TMR0IE
-0024   178B           00097     bsf     INTCON, GIE
+0013   0009           00097         retfie
                       00098 
-                      00099     ; Preload timer0
-0025   303D           00100     movlw   timer_preload
-0026   0081           00101     movwf   TMR0
-                      00102 
-0027   0008           00103     return
-                      00104 
-                      00105 ; Refresh Display Subroutine
-0028                  00106 refresh_display
-0028                  00107 test_1
-0028   1C05           00108     btfss   PORTA, 0
-0029   282B           00109     goto    test_2
-002A   2835           00110     goto    refresh_display_1
+                      00099 
+                      00100 ; *** Refresh Display Config Subroutine ***
+0014                  00101 refresh_display_config
+                      00102     ; Change to Bank 1
+0014   1303           00103     bcf     STATUS, RP1
+0015   1683           00104     bsf     STATUS, RP0
+                      00105 
+                      00106     ; Config Port A as Digital Outputs
+0016   3006           00107     movlw   b'0110' ; Set as digital 
+Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'ADCON1' -- (Bank_1: 0x0080; Offs: 0x001F)
+0017   009F           00108     movwf   ADCON1
+0018   3000           00109     movlw   0       ; Set as output
+Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'TRISA' -- (Bank_1: 0x0080; Offs: 0x0005)
+0019   0085           00110     movwf   TRISA
                       00111 
-002B                  00112 test_2
-002B   1D85           00113     btfss   PORTA, 3
-002C   282E           00114     goto    test_3
-002D   283A           00115     goto    refresh_display_2
-                      00116 
-002E                  00117 test_3
-002E   1D05           00118     btfss   PORTA, 2
-002F   2831           00119     goto    test_4
-0030   283F           00120     goto    refresh_display_3
-                      00121 
-0031                  00122 test_4
-0031   1C85           00123     btfss   PORTA, 1
-0032   2834           00124     goto    end_test
-0033   2844           00125     goto    refresh_display_4
+                      00112     ; Config Port B as Output
+001A   3000           00113     movlw   0
+Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'TRISB' -- (Bank_1: 0x0080; Offs: 0x0006)
+001B   0086           00114     movwf   TRISB
+                      00115 
+                      00116     ; Config Timer0
+Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'OPTION_REG' -- (Bank_1: 0x0080; Offs: 0x0001)
+001C   1281           00117     bcf     OPTION_REG, T0CS
+Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'OPTION_REG' -- (Bank_1: 0x0080; Offs: 0x0001)
+001D   1181           00118     bcf     OPTION_REG, PSA     ; Config prescaler (1:128)
+Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'OPTION_REG' -- (Bank_1: 0x0080; Offs: 0x0001)
+001E   1501           00119     bsf     OPTION_REG, PS2
+Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'OPTION_REG' -- (Bank_1: 0x0080; Offs: 0x0001)
+001F   1481           00120     bsf     OPTION_REG, PS1
+Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'OPTION_REG' -- (Bank_1: 0x0080; Offs: 0x0001)
+0020   1001           00121     bcf     OPTION_REG, PS0
+                      00122 
+                      00123     ; Change to Bank 0
+0021   1303           00124     bcf     STATUS, RP1
+0022   1283           00125     bcf     STATUS, RP0
                       00126 
-0034                  00127 end_test
-0034   2835           00128     goto    refresh_display_1
-                      00129 
-0035                  00130 refresh_display_1
-                      00131     ; Turn display 1 on
-0035   3008           00132     movlw   b'1000'
-0036   0085           00133     movwf   PORTA
-                      00134     
-                      00135     ; H
-0037   3076           00136     movlw   b'1110110'
-0038   0086           00137     movwf   PORTB
-                      00138 
-0039   0008           00139     return
-                      00140 
-003A                  00141 refresh_display_2
-gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/21/23  21:44:58          PAGE  4
+                      00127     ; Enable timer0 interrupt
+0023   168B           00128     bsf     INTCON, TMR0IE
+0024   178B           00129     bsf     INTCON, GIE
+                      00130 
+                      00131     ; Preload timer0
+0025   303C           00132     movlw   timer_preload
+0026   0081           00133     movwf   TMR0
+                      00134 
+0027   0008           00135     return
+                      00136 
+                      00137 ; Refresh Display Subroutine
+0028                  00138 refresh_display
+0028                  00139 test_1
+0028   1C05           00140     btfss   PORTA, 0
+0029   282B           00141     goto    test_2
+gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/22/23  18:54:32          PAGE  4
 
 
 LOC    OBJECT CODE    LINE  SOURCE TEXT
   VALUE
 
-                      00142     ; Turn display 2 on
-003A   3004           00143     movlw   b'0100'
-003B   0085           00144     movwf   PORTA
-                      00145     
-                      00146     ; o
-003C   305C           00147     movlw   b'1011100'
-003D   0086           00148     movwf   PORTB
-003E   0008           00149     return
-                      00150 
-003F                  00151 refresh_display_3
-                      00152     ; Turn display 3 on
-003F   3002           00153     movlw   b'0010'
-0040   0085           00154     movwf   PORTA
-                      00155     
-                      00156     ; L
-0041   3038           00157     movlw   b'0111000'
-0042   0086           00158     movwf   PORTB
-0043   0008           00159     return
-                      00160 
-0044                  00161 refresh_display_4
-                      00162     ; Turn display 4 on
-0044   3001           00163     movlw   b'0001'
-0045   0085           00164     movwf   PORTA
-                      00165     
-                      00166     ; A
-0046   3077           00167     movlw   b'1110111'
-0047   0086           00168     movwf   PORTB
-0048   0008           00169     return
+002A   2835           00142     goto    refresh_display_1
+                      00143 
+002B                  00144 test_2
+002B   1D85           00145     btfss   PORTA, 3
+002C   282E           00146     goto    test_3
+002D   283A           00147     goto    refresh_display_2
+                      00148 
+002E                  00149 test_3
+002E   1D05           00150     btfss   PORTA, 2
+002F   2831           00151     goto    test_4
+0030   283F           00152     goto    refresh_display_3
+                      00153 
+0031                  00154 test_4
+0031   1C85           00155     btfss   PORTA, 1
+0032   2834           00156     goto    end_test
+0033   2844           00157     goto    refresh_display_4
+                      00158 
+0034                  00159 end_test
+0034   2835           00160     goto    refresh_display_1
+                      00161 
+0035                  00162 refresh_display_1
+                      00163     ; Turn display 1 on
+0035   3008           00164     movlw   b'1000'
+0036   0085           00165     movwf   PORTA
+                      00166     
+                      00167     ; Display H character
+0037   3076           00168     movlw   char_H
+0038   0086           00169     movwf   PORTB
                       00170 
-                      00171 ; *** Main Routine ***
-0049                  00172 main
-0049   2014           00173     call    refresh_display_config
-                      00174 
-004A                  00175 loop
-004A   284A           00176     goto    loop
-                      00177 
-                      00178         END ; directive 'end of program'
-gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/21/23  21:44:58          PAGE  5
+0039   0008           00171     return
+                      00172 
+003A                  00173 refresh_display_2
+                      00174     ; Turn display 2 on
+003A   3004           00175     movlw   b'0100'
+003B   0085           00176     movwf   PORTA
+                      00177     
+                      00178     ; Display o character
+003C   305C           00179     movlw   char_o
+003D   0086           00180     movwf   PORTB
+003E   0008           00181     return
+                      00182 
+003F                  00183 refresh_display_3
+                      00184     ; Turn display 3 on
+003F   3002           00185     movlw   b'0010'
+0040   0085           00186     movwf   PORTA
+                      00187     
+                      00188     ; Display L character
+0041   3038           00189     movlw   char_L
+0042   0086           00190     movwf   PORTB
+0043   0008           00191     return
+                      00192 
+0044                  00193 refresh_display_4
+                      00194     ; Turn display 4 on
+gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/22/23  18:54:32          PAGE  5
+
+
+LOC    OBJECT CODE    LINE  SOURCE TEXT
+  VALUE
+
+0044   3001           00195     movlw   b'0001'
+0045   0085           00196     movwf   PORTA
+                      00197     
+                      00198     ; Display A character
+0046   3077           00199     movlw   char_A
+0047   0086           00200     movwf   PORTB
+0048   0008           00201     return
+                      00202 
+                      00203 ; *** Main Routine ***
+0049                  00204 main
+0049   2014           00205     call    refresh_display_config
+                      00206 
+004A                  00207 loop
+004A   284A           00208     goto    loop
+                      00209 
+                      00210         END ; directive 'end of program'
+gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/22/23  18:54:32          PAGE  6
 
 
 SYMBOL TABLE
@@ -277,7 +315,7 @@ CHS1                              00000004
 CHS2                              00000005
 CIS                               00000003
 CKE                               00000006
-gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/21/23  21:44:58          PAGE  6
+gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/22/23  18:54:32          PAGE  7
 
 
 SYMBOL TABLE
@@ -336,7 +374,7 @@ INTF                              00000001
 IRP                               00000007
 NOT_A                             00000005
 NOT_ADDRESS                       00000005
-gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/21/23  21:44:58          PAGE  7
+gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/22/23  18:54:32          PAGE  8
 
 
 SYMBOL TABLE
@@ -395,7 +433,7 @@ RB0                               00000000
 RB1                               00000001
 RB2                               00000002
 RB3                               00000003
-gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/21/23  21:44:58          PAGE  8
+gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/22/23  18:54:32          PAGE  9
 
 
 SYMBOL TABLE
@@ -454,7 +492,7 @@ SSPBUF                            00000013
 SSPCON                            00000014
 SSPCON2                           00000091
 SSPEN                             00000005
-gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/21/23  21:44:58          PAGE  9
+gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/22/23  18:54:32          PAGE 10
 
 
 SYMBOL TABLE
@@ -513,7 +551,7 @@ TRISB0                            00000000
 TRISB1                            00000001
 TRISB2                            00000002
 TRISB3                            00000003
-gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/21/23  21:44:58          PAGE 10
+gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/22/23  18:54:32          PAGE 11
 
 
 SYMBOL TABLE
@@ -572,7 +610,7 @@ _CPD_ON                           00003EFF
 _CP_ALL                           00001FFF
 _CP_OFF                           00003FFF
 _CP_ON                            00001FFF
-gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/21/23  21:44:58          PAGE 11
+gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/22/23  18:54:32          PAGE 12
 
 
 SYMBOL TABLE
@@ -606,6 +644,43 @@ _WRT_HALF                         000039FF
 _WRT_OFF                          00003FFF
 _XT_OSC                           00003FFD
 __16F877A                         00000001
+char_0                            0000003F
+char_1                            00000006
+char_2                            0000005B
+char_3                            0000004F
+char_4                            00000066
+char_5                            0000006D
+char_6                            0000007D
+char_7                            00000007
+char_8                            0000007F
+char_9                            0000006F
+char_A                            00000077
+char_E                            00000079
+char_F                            00000071
+char_G                            0000003D
+char_H                            00000076
+char_I                            00000030
+char_J                            0000000E
+char_L                            00000038
+char_P                            00000073
+char_S                            0000006D
+char_b                            0000007C
+char_c                            00000058
+char_d                            0000005E
+char_enie                         00000055
+char_n                            00000054
+gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/22/23  18:54:32          PAGE 13
+
+
+SYMBOL TABLE
+  LABEL                            VALUE  
+
+char_o                            0000005C
+char_off                          00000000
+char_r                            00000050
+char_t                            00000078
+char_u                            0000001C
+char_y                            0000006E
 end_test                          00000034
 loop                              0000004A
 main                              00000049
@@ -621,7 +696,7 @@ test_1                            00000028
 test_2                            0000002B
 test_3                            0000002E
 test_4                            00000031
-timer_preload                     0000003D
+timer_preload                     0000003C
 w_temp                            0000007D
 
 
@@ -630,11 +705,6 @@ MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
 0000 : XX--XXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
 0040 : XXXXXXXXXXX----- ---------------- ---------------- ----------------
 2000 : -------X-------- ---------------- ---------------- ----------------
-
-gpasm-1.5.2 #1325 (May 26 2023) ./src//refres   06/21/23  21:44:58          PAGE 12
-
-
-MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
 
 All other memory blocks unused.
 
