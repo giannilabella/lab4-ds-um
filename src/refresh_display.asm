@@ -21,19 +21,52 @@ status_temp	EQU	0x7E
 pclath_temp	EQU	0x7F
 
 ; Refresh Display Subroutine Variables
+char_0 		EQU b'0111111'
+char_1 		EQU b'0000110'
+char_2 		EQU b'1011011'
+char_3 		EQU b'1001111'
+char_4 		EQU b'1100110'
+char_5 		EQU b'1101101'
+char_6 		EQU b'1111101'
+char_7 		EQU b'0000111'
+char_8 		EQU b'1111111'
+char_9 		EQU b'1101111'
+char_A 		EQU b'1110111'
+char_b 		EQU b'1111100'
+char_c 		EQU b'1011000'
+char_d 		EQU b'1011110'
+char_E 		EQU b'1111001'
+char_F 		EQU b'1110001'
+char_G 		EQU b'0111101'
+char_H 		EQU b'1110110'
+char_I 		EQU b'0110000'
+char_J 		EQU b'0001110'
+char_L 		EQU b'0111000'
+char_n 		EQU b'1010100'
+char_enie   EQU b'1010101'
+char_o      EQU b'1011100'
+char_P      EQU b'1110011'
+char_r      EQU b'1010000'
+char_S      EQU b'1101101'
+char_t      EQU b'1111000'
+char_u      EQU b'0011100'
+char_y      EQU b'1101110'
+char_off    EQU b'0000000'
 
 timer_preload   EQU d'60'   ; Preload for 10ms interrupt period on 1:128 prescaler
 
 
 ; *** Reset Config ***
-	ORG     0x000   ; processor reset vector
+    ; Processor reset vector
+	ORG     0x000
 
 	nop             ; nop required for icd
   	goto    main    ; go to beginning of program
 
 
 ; *** Interrupt Config ***
-	ORG     0x004   ; interrupt vector location
+    ; Interrupt vector location
+	ORG     0x004
 
     ; Disable global interrupt
     bcf     INTCON, GIE
@@ -131,8 +164,8 @@ refresh_display_1
     movlw   b'1000'
     movwf   PORTA
     
-    ; H
-    movlw   b'1110110'
+    ; Display H character
+    movlw   char_H
     movwf   PORTB
 
     return
@@ -142,8 +175,8 @@ refresh_display_2
     movlw   b'0100'
     movwf   PORTA
     
-    ; o
-    movlw   b'1011100'
+    ; Display o character
+    movlw   char_o
     movwf   PORTB
     return
 
@@ -152,8 +185,8 @@ refresh_display_3
     movlw   b'0010'
     movwf   PORTA
     
-    ; L
-    movlw   b'0111000'
+    ; Display L character
+    movlw   char_L
     movwf   PORTB
     return
 
@@ -162,8 +195,8 @@ refresh_display_4
     movlw   b'0001'
     movwf   PORTA
     
-    ; A
-    movlw   b'1110111'
+    ; Display A character
+    movlw   char_A
     movwf   PORTB
     return
 
