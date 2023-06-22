@@ -1,7 +1,7 @@
-PROJECT_NAME = sampling
+PROJECT_NAME = refresh_display
 PROCESSOR    = p16f877a # Required by disassembler
 
-SOURCE_FILE = sampling.asm
+SOURCE_FILE = refresh_display.asm
 SOURCE_DIR = src/
 OUTPUT_DIR = out/
 
