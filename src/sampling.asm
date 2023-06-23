@@ -83,9 +83,9 @@ sampling_config
     bsf     STATUS, RP0
 
     ; Config Analog Inputs
-    bsf     analog_input_port, analog_input_0_bit   ; Set both as inputs
-    bsf     analog_input_port, analog_input_1_bit
-    bcf     ADCON1, PCFG1                           ; Set both as analog inputs
+    bcf     ADCON1, PCFG3   ; Set both as analog inputs
+    bcf     ADCON1, PCFG2
+    bcf     ADCON1, PCFG1                           
     bcf     ADCON1, PCFG0
 
     ; Config Select Input
@@ -96,8 +96,8 @@ sampling_config
     movwf   sample_output_port
 
     ; Config Timer0
-    bcf     OPTION_REG, T0CS
-    bcf     OPTION_REG, PSA     ; Config prescaler (1:128)
+    bcf     OPTION_REG, T0CS    ; 
+    bcf     OPTION_REG, PSA     ; Config TMR0 prescaler (1:128)
     bsf     OPTION_REG, PS2
     bsf     OPTION_REG, PS1
     bcf     OPTION_REG, PS0
