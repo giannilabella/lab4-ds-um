@@ -1,4 +1,4 @@
-gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/17/23  22:08:18          PAGE  1
+gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/23/23  20:05:26          PAGE  1
 
 
 LOC    OBJECT CODE    LINE  SOURCE TEXT
@@ -41,7 +41,7 @@ LOC    OBJECT CODE    LINE  SOURCE TEXT
 0000                  00025         ORG     0x000   ; processor reset vector
                       00026 
 0000   0000           00027         nop             ; nop required for icd
-0001   2823           00028         goto    main    ; go to beginning of program
+0001   2825           00028         goto    main    ; go to beginning of program
                       00029 
                       00030 
                       00031 ; *** Interrupt Config ***
@@ -56,24 +56,24 @@ LOC    OBJECT CODE    LINE  SOURCE TEXT
 0005   1303           00040     bcf     STATUS, RP1
 0006   1683           00041     bsf     STATUS, RP0
                       00042 
-                      00043     ; Set trigger pin as input
-gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/17/23  22:08:18          PAGE  2
+                      00043     ; Set PORTA as digital I/O
+gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/23/23  20:05:26          PAGE  2
 
 
 LOC    OBJECT CODE    LINE  SOURCE TEXT
   VALUE
 
+Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'ADCON1' -- (Bank_1: 0x0080; Offs: 0x001F)
+0007   119F           00044     bcf     ADCON1, PCFG3
+Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'ADCON1' -- (Bank_1: 0x0080; Offs: 0x001F)
+0008   151F           00045     bsf     ADCON1, PCFG2
+Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'ADCON1' -- (Bank_1: 0x0080; Offs: 0x001F)
+0009   149F           00046     bsf     ADCON1, PCFG1
+                      00047     
+                      00048     ; Set trigger pin as input
 Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'TRISA' -- (Bank_1: 0x0080; Offs: 0x0005)
-0007   1405           00044     bsf     TRISA, trigger
-                      00045 
-                      00046     ; Set PORTA as digital input
-Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'ADCON1' -- (Bank_1: 0x0080; Offs: 0x001F)
-0008   119F           00047     bcf     ADCON1, PCFG3
-Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'ADCON1' -- (Bank_1: 0x0080; Offs: 0x001F)
-0009   151F           00048     bsf     ADCON1, PCFG2
-Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'ADCON1' -- (Bank_1: 0x0080; Offs: 0x001F)
-000A   149F           00049     bsf     ADCON1, PCFG1
-                      00050     
+000A   1405           00049     bsf     TRISA, trigger
+                      00050 
                       00051     ; Set LED pin as output
 Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bits are correct: 'TRISA' -- (Bank_1: 0x0080; Offs: 0x0005)
 000B   1085           00052     bcf     TRISA, led_bit
@@ -92,53 +92,55 @@ Message[302]: Register in operand not located in RAM Bank 0. Ensure that Bank bi
                       00065 
                       00066 ; *** Led Trigger Timer Subroutine ***
 0012                  00067 led_trigger_timer
-                      00068     ; Setup Timer Variables
-0012   3030           00069     movlw   d'48'
-0013   00A0           00070     movwf   timer_2
-0014   01A1           00071     clrf    timer_1
-0015   01A2           00072     clrf    timer_0
-                      00073 
-0016   0000           00074 tmr nop
-0017   0BA2           00075     decfsz  timer_0
-0018   2816           00076     goto    tmr
-0019   0BA1           00077     decfsz  timer_1
-001A   2816           00078     goto    tmr
-001B   0BA0           00079     decfsz  timer_2
-001C   2816           00080     goto    tmr
-                      00081     
-001D   0008           00082     return
-                      00083 
-                      00084 ; *** Led Trigger Subroutine ***
-001E                  00085 led_trigger
-                      00086     ; Listen until trigger is on
-001E   200F           00087     call    led_trigger_listener
-                      00088 
-                      00089     ; Turn LED on
-001F   1485           00090     bsf     PORTA, led_bit
-                      00091 
-gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/17/23  22:08:18          PAGE  3
+0012   1030           00068     bcf     0x30, 0
+                      00069     ; Setup Timer Variables
+0013   3030           00070     movlw   d'48'
+0014   00A0           00071     movwf   timer_2
+0015   01A1           00072     clrf    timer_1
+0016   01A2           00073     clrf    timer_0
+                      00074 
+0017   0000           00075 tmr nop
+0018   0BA2           00076     decfsz  timer_0
+0019   2817           00077     goto    tmr
+001A   0BA1           00078     decfsz  timer_1
+001B   2817           00079     goto    tmr
+001C   0BA0           00080     decfsz  timer_2
+001D   2817           00081     goto    tmr
+                      00082     
+001E   14B0           00083     bsf     0x30, 1
+001F   0008           00084     return
+                      00085 
+                      00086 ; *** Led Trigger Subroutine ***
+0020                  00087 led_trigger
+                      00088     ; Listen until trigger is on
+0020   200F           00089     call    led_trigger_listener
+                      00090 
+                      00091     ; Turn LED on
+gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/23/23  20:05:26          PAGE  3
 
 
 LOC    OBJECT CODE    LINE  SOURCE TEXT
   VALUE
 
-                      00092     ; Start 5 seconds timer
-0020   2012           00093     call    led_trigger_timer
-                      00094 
-                      00095     ; Turn LED off
-0021   1085           00096     bcf     PORTA, led_bit
-                      00097 
-                      00098     ; Restart subroutine
-0022   281E           00099     goto    led_trigger
-                      00100 
-                      00101 
-                      00102 ; *** Main Routine ***
-0023                  00103 main
-0023   2005           00104     call    led_trigger_config
-0024   201E           00105     call    led_trigger
-                      00106 
-                      00107         END ; directive 'end of program'
-gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/17/23  22:08:18          PAGE  4
+0021   1485           00092     bsf     PORTA, led_bit
+                      00093 
+                      00094     ; Start 5 seconds timer
+0022   2012           00095     call    led_trigger_timer
+                      00096 
+                      00097     ; Turn LED off
+0023   1085           00098     bcf     PORTA, led_bit
+                      00099 
+                      00100     ; Restart subroutine
+0024   2820           00101     goto    led_trigger
+                      00102 
+                      00103 
+                      00104 ; *** Main Routine ***
+0025                  00105 main
+0025   2005           00106     call    led_trigger_config
+0026   2020           00107     call    led_trigger
+                      00108 
+                      00109         END ; directive 'end of program'
+gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/23/23  20:05:26          PAGE  4
 
 
 SYMBOL TABLE
@@ -197,7 +199,7 @@ CHS1                              00000004
 CHS2                              00000005
 CIS                               00000003
 CKE                               00000006
-gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/17/23  22:08:18          PAGE  5
+gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/23/23  20:05:26          PAGE  5
 
 
 SYMBOL TABLE
@@ -256,7 +258,7 @@ INTF                              00000001
 IRP                               00000007
 NOT_A                             00000005
 NOT_ADDRESS                       00000005
-gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/17/23  22:08:18          PAGE  6
+gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/23/23  20:05:26          PAGE  6
 
 
 SYMBOL TABLE
@@ -315,7 +317,7 @@ RB0                               00000000
 RB1                               00000001
 RB2                               00000002
 RB3                               00000003
-gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/17/23  22:08:18          PAGE  7
+gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/23/23  20:05:26          PAGE  7
 
 
 SYMBOL TABLE
@@ -374,7 +376,7 @@ SSPBUF                            00000013
 SSPCON                            00000014
 SSPCON2                           00000091
 SSPEN                             00000005
-gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/17/23  22:08:18          PAGE  8
+gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/23/23  20:05:26          PAGE  8
 
 
 SYMBOL TABLE
@@ -433,7 +435,7 @@ TRISB0                            00000000
 TRISB1                            00000001
 TRISB2                            00000002
 TRISB3                            00000003
-gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/17/23  22:08:18          PAGE  9
+gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/23/23  20:05:26          PAGE  9
 
 
 SYMBOL TABLE
@@ -492,7 +494,7 @@ _CPD_ON                           00003EFF
 _CP_ALL                           00001FFF
 _CP_OFF                           00003FFF
 _CP_ON                            00001FFF
-gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/17/23  22:08:18          PAGE 10
+gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/23/23  20:05:26          PAGE 10
 
 
 SYMBOL TABLE
@@ -527,31 +529,31 @@ _WRT_OFF                          00003FFF
 _XT_OSC                           00003FFD
 __16F877A                         00000001
 led_bit                           00000001
-led_trigger                       0000001E
+led_trigger                       00000020
 led_trigger_config                00000005
 led_trigger_listener              0000000F
 led_trigger_timer                 00000012
-main                              00000023
+main                              00000025
 timer_0                           00000022
 timer_1                           00000021
 timer_2                           00000020
-tmr                               00000016
+tmr                               00000017
 trigger                           00000000
 
 
 MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
 
-0000 : XX--XXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXX----------- ----------------
+0000 : XX--XXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXX--------- ----------------
 2000 : -------X-------- ---------------- ---------------- ----------------
 
 All other memory blocks unused.
 
-Program Memory Words Used:    35
-Program Memory Words Free:  8157
+Program Memory Words Used:    37
+Program Memory Words Free:  8155
 
 
 Errors   :     0
-gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/17/23  22:08:18          PAGE 11
+gpasm-1.5.2 #1325 (May 26 2023) ./src//led_tr   06/23/23  20:05:26          PAGE 11
 
 
 

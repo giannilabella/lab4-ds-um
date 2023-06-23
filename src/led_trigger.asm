@@ -40,14 +40,14 @@ led_trigger_config
     bcf     STATUS, RP1
     bsf     STATUS, RP0
 
-    ; Set trigger pin as input
-    bsf     TRISA, trigger
-
-    ; Set PORTA as digital input
+    ; Set PORTA as digital I/O
     bcf     ADCON1, PCFG3
     bsf     ADCON1, PCFG2
     bsf     ADCON1, PCFG1
     
+    ; Set trigger pin as input
+    bsf     TRISA, trigger
+
     ; Set LED pin as output
     bcf     TRISA, led_bit
 
@@ -65,7 +65,7 @@ led_trigger_listener
 
 ; *** Led Trigger Timer Subroutine ***
 led_trigger_timer
-    ; Setup Timer Variables
+    ; Setup Timer Variables for 5 seconds
     movlw   d'48'
     movwf   timer_2
     clrf    timer_1
