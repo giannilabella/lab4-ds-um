@@ -1,7 +1,7 @@
 ; *** FILE DATA ***
 ;   Filename: refresh_display.asm
 ;   Date: June 21, 2023
-;   Version: 1.0
+;   Version: 2.0
 ;
 ;   Author: Gianni Labella
 ;   Company: Universidad de Montevideo
@@ -78,8 +78,8 @@ timer_preload   EQU d'60'   ; Preload for 10ms interrupt period on 1:128 prescal
     swapf   PCLATH, W       ; swap PCLATH nibbles and save value to a temporary register
     movwf   pclath_temp
 
-    ; Interrupt Service Routine (ISR) code can go here or be located as a call subroutine elsewhere
-    btfsc   INTCON, TMR0IF      ; Skip when timer0 flag is clear
+    ; Refresh display when TMR0 interupt flag is set
+    btfsc   INTCON, TMR0IF      ; Skip when flag is clear
     call    refresh_display     ; Convert analog input if flag is set
 
     ; Restore context
@@ -104,19 +104,19 @@ refresh_display_config
     bsf     STATUS, RP0
 
     ; Config Port A as Digital Outputs
-    movlw   b'0110' ; Set as digital 
+    movlw   b'0110' ; Set as Digital I/O
     movwf   ADCON1
-    movlw   0       ; Set as output
+    movlw   0       ; Set as Output
     movwf   TRISA
 
     ; Config Port B as Output
     movlw   0
     movwf   TRISB
 
-    ; Config Timer0
-    bcf     OPTION_REG, T0CS
-    bcf     OPTION_REG, PSA     ; Config prescaler (1:128)
-    bsf     OPTION_REG, PS2
+    ; Config TMR0
+    bcf     OPTION_REG, T0CS    ; Set TMR0 source to internal instruction cycle clock
+    bcf     OPTION_REG, PSA     ; Set prescalet to TMR0
+    bsf     OPTION_REG, PS2     ; Set prescaler to 1:128
     bsf     OPTION_REG, PS1
     bcf     OPTION_REG, PS0
 
@@ -124,78 +124,82 @@ refresh_display_config
     bcf     STATUS, RP1
     bcf     STATUS, RP0
 
-    ; Enable timer0 interrupt
+    ; Enable TMR0 and global interrupt
     bsf     INTCON, TMR0IE
     bsf     INTCON, GIE
 
-    ; Preload timer0
+    ; Preload TMR0
     movlw   timer_preload
     movwf   TMR0
 
     return
 
-; Refresh Display Subroutine
+; *** Refresh Display Subroutine ***
 refresh_display
 test_1
-    btfss   PORTA, 0
-    goto    test_2
-    goto    refresh_display_1
+    btfss   PORTA, 0            ; Check if the display that is currently on is the 4th
+    goto    test_2              ; If not, proceed to the next verification
+    goto    refresh_display_1   ; If it is, the 1st display is refreshed
 
 test_2
-    btfss   PORTA, 3
-    goto    test_3
-    goto    refresh_display_2
+    btfss   PORTA, 3            ; Check if the display that is currently on is the 1st
+    goto    test_3              ; If not, proceed to the next verification
+    goto    refresh_display_2   ; If it is, the 2nd display is refreshed
 
 test_3
-    btfss   PORTA, 2
-    goto    test_4
-    goto    refresh_display_3
+    btfss   PORTA, 2            ; Check if the display that is currently on is the 2nd
+    goto    test_4              ; If not, proceed to the next verification
+    goto    refresh_display_3   ; If it is, the 3rd display is refreshed
 
 test_4
-    btfss   PORTA, 1
-    goto    end_test
-    goto    refresh_display_4
+    btfss   PORTA, 1            ; Check if the display that is currently on is the 3rd
+    goto    end_test            ; If not, proceed to the end of the verification
+    goto    refresh_display_4   ; If it is, the 4th display is refreshed
 
 end_test
-    goto    refresh_display_1
+    goto    refresh_display_1   ; If none of the displays are on, the 1st display is refreshed
 
+; *** Refresh 1st Display Subroutine ***
 refresh_display_1
     ; Turn display 1 on
     movlw   b'1000'
     movwf   PORTA
     
-    ; Display H character
+    ; Display character "H"
     movlw   char_H
     movwf   PORTB
 
     return
 
+; *** Refresh 2nd Display Subroutine ***
 refresh_display_2
     ; Turn display 2 on
     movlw   b'0100'
     movwf   PORTA
     
-    ; Display o character
+    ; Display character "o"
     movlw   char_o
     movwf   PORTB
     return
 
+; *** Refresh 3rd Display Subroutine ***
 refresh_display_3
     ; Turn display 3 on
     movlw   b'0010'
     movwf   PORTA
     
-    ; Display L character
+    ; Display character "L"
     movlw   char_L
     movwf   PORTB
     return
 
+; *** Refresh 4th Display Subroutine ***
 refresh_display_4
     ; Turn display 4 on
     movlw   b'0001'
     movwf   PORTA
     
-    ; Display A character
+    ; Display character "A"
     movlw   char_A
     movwf   PORTB
     return
