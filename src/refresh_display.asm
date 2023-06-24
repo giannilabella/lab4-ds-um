@@ -1,7 +1,7 @@
 ; *** FILE DATA ***
 ;   Filename: refresh_display.asm
 ;   Date: June 21, 2023
-;   Version: 2.0
+;   Version: 3.0
 ;
 ;   Author: Gianni Labella
 ;   Company: Universidad de Montevideo
@@ -169,7 +169,7 @@ refresh_display_1
     movlw   char_H
     movwf   PORTB
 
-    return
+    goto    restart_timer
 
 ; *** Refresh 2nd Display Subroutine ***
 refresh_display_2
@@ -180,7 +180,8 @@ refresh_display_2
     ; Display character "o"
     movlw   char_o
     movwf   PORTB
-    return
+
+    goto    restart_timer
 
 ; *** Refresh 3rd Display Subroutine ***
 refresh_display_3
@@ -191,7 +192,8 @@ refresh_display_3
     ; Display character "L"
     movlw   char_L
     movwf   PORTB
-    return
+
+    goto    restart_timer
 
 ; *** Refresh 4th Display Subroutine ***
 refresh_display_4
@@ -202,7 +204,16 @@ refresh_display_4
     ; Display character "A"
     movlw   char_A
     movwf   PORTB
-    return
+    
+    goto    restart_timer
+
+; *** Restart TMR0 after refreshing display ***
+restart_timer
+    bcf     INTCON, TMR0IF  ; Clear timer0 flag
+    movlw   timer_preload   ; Set timer preload
+    movwf   TMR0
+
+    return                  ; Return to interruption
 
 ; *** Main Routine ***
 main
